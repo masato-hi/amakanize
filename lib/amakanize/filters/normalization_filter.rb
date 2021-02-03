@@ -8,9 +8,16 @@ module Amakanize
       # @param output [String] e.g. `"ぽんかん（８）"`, `"ぽんかん⑧"`
       # @return [Hash] e.g. `"ぽんかん(8)"`, `"ぽんかん8"`
       def call(context:, output:)
+        normalized =
+        if RUBY_VERSION >= "2.5"
+          output.unicode_normalize(:nfkc)
+        elsif ::ActiveSupport::Multibyte::Unicode.respond_to?(:normalize)
+          ::ActiveSupport::Multibyte::Unicode.normalize(output)
+        end
+
         {
           context: context,
-          output: ::ActiveSupport::Multibyte::Unicode.normalize(output),
+          output: normalized,
         }
       end
     end
